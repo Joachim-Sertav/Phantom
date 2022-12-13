@@ -1,1 +1,3 @@
-
+Le projet "Phantom" consiste a trouver la sortie du labirynte en suivant une ligne de scotch noire au sol (capteur) pour la première voiture (voiture fantome),
+on lui fait mémoriser le chemin et on réessaye de faire sortir la voiture du labirynte cette fois ci sans ligne noire a suivre .
+La voiture doit avancer a une vitesse modérée et éviter tout les murs (ie ne pas les toucher).
