@@ -10,6 +10,7 @@ int ENB=10; //Connecté à Arduino pin 10(Sortie PWM)
 int IN3=6; //Connecté à Arduino pin 6
 int IN4=7; //Connecté à Arduino pin 7
 void setup() {
+  Serial.begin(9600);
   pinMode(ENA,OUTPUT); // Configurer
   pinMode(ENB,OUTPUT); // les broches
   pinMode(IN1,OUTPUT); // comme sortie
@@ -28,17 +29,21 @@ void setup() {
 }
 void loop() {
   // si le capteur central detecte ligne noire avancer droit devant
-  if (digitalRead(CAPG)==HIGH && digitalRead(CAPD)==HIGH) && digitalRead(CAPC)==LOW){
-    for (int i=50;i<130;i++) {
-    analogWrite(ENA,i);
-    analogWrite(ENB,i);}}
+  if (digitalRead(CAPC)==LOW){
+    Serial.println("capteur central inactif, la voiture phantom avnce tout droit");
+    delay(1000);
+    analogWrite(ENA,255);
+    analogWrite(ENB,255);}
   // si le capteur droit detecte ligne noire tourner à gauche
-  else if (digitalRead(CAPG)==HIGH && digitalRead(CAPD)==LOW)&& digitalRead(CAPC)==HIGH) {
-    analogWrite(ENA,120);
-    analogWrite(ENB,50);}
+  else if (digitalRead(CAPD)==LOW) {
+    Serial.println("capteur droit inactif, la voiture tourne à droite");
+    delay(1000);
+    analogWrite(ENA,255);
+    analogWrite(ENB,0);}
   // si le capteur gauche detecte ligne noire tourner à droite
-  else if (digitalRead(CAPG)==LOW && digitalRead(CAPD)==HIGH) && digitalRead(CAPC)==HIGH) {
-    analogWrite(ENA,50);
-    analogWrite(ENB,120);
-  }
+  else if (digitalRead(CAPG)==LOW) {
+    Serial.println("capteur gauche inactif, la voiture tourne à gauche");
+    delay(1000);
+    analogWrite(ENA,0);
+    analogWrite(ENB,255);}
 }
