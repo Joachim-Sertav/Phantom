@@ -1,49 +1,166 @@
+#include <SoftwareSerial.h>
+#define RX 2
+#define TX 3
+SoftwareSerial BlueT(RX,TX);
+char test="";
+
 //-- MOTEUR (GAUCHE) A --
-int ENA=9; //Connecté à Arduino pin 9(sortie PWM)
+int moteur_gauche=9; //Connecté à Arduino pin 9(sortie PWM)
 int IN1=4; //Connecté à Arduino pin 4
 int IN2=5; //Connecté à Arduino pin 5
-int CAPG=11; // Capteur gauche connecté a pin 11
-int CAPD=13; // Capteur droit connecté a pin 13
-int CAPC=12; // Capteur central connecté a pin 12
+
+//--CAPTEUR --
+int capteur_gauche=11; // Capteur gauche connecté a pin 11
+int capteur_central=12; // Capteur droit connecté a pin 13
+int capteur_droit=13; // Capteur central connecté a pin 12
+
 //-- MOTEUR (DROIT) B --
-int ENB=10; //Connecté à Arduino pin 10(Sortie PWM)
+int moteur_droit=10; //Connecté à Arduino pin 10(Sortie PWM)
 int IN3=6; //Connecté à Arduino pin 6
 int IN4=7; //Connecté à Arduino pin 7
+
+// variables pour les capteurs
+char etatCapteurCentral;
+char etatCapteurDroit;
+char etatCapteurGauche;
+
 void setup() {
   Serial.begin(9600);
-  pinMode(ENA,OUTPUT); // Configurer
-  pinMode(ENB,OUTPUT); // les broches
+  pinMode(moteur_gauche,OUTPUT); // Configurer
+  pinMode(moteur_droit,OUTPUT); // les broches
   pinMode(IN1,OUTPUT); // comme sortie
   pinMode(IN2,OUTPUT);
   pinMode(IN3,OUTPUT);
   pinMode(IN4,OUTPUT);
-  pinMode(CAPG,INPUT);
-  pinMode(CAPD,INPUT);
-  pinMode(CAPC,INPUT);
+  pinMode(capteur_gauche,INPUT); // On définit les capteurs comme des entrées
+  pinMode(capteur_droit,INPUT);
+  pinMode(capteur_central,INPUT);
   digitalWrite(IN1,HIGH); // orientation des roues
   digitalWrite(IN2,LOW);
+  digitalWrite(IN3,HIGH);
+  digitalWrite(IN4,LOW);
+  digitalWrite(moteur_gauche,LOW);// Moteur (GAUCHE) A - Ne pas tourner
+  digitalWrite(moteur_droit,LOW);// Moteur (DROIT) B - Ne pas tourner
+}
+void avancer() {
+  
+   // Lecture des valeurs des capteurs infrarouges
+  etatCapteurGauche = digitalRead(capteur_gauche);
+  etatCapteurCentral = digitalRead(capteur_central);
+  etatCapteurDroit = digitalRead(capteur_droit);
+  
+  // Si tous les capteurs détectent la ligne noire
+  if (etatCapteurGauche == HIGH && etatCapteurCentral == HIGH && etatCapteurDroit == HIGH) {
+    // Stopper les moteurs
+    digitalWrite(moteur_gauche, LOW);
+    digitalWrite(moteur_droit, LOW);
+  }
+  // Si le capteur central détecte la ligne noire
+  else if (etatCapteurCentral == HIGH && etatCapteurGauche == LOW&& etatCapteurDroit == LOW ) {
+    // Aller tout droit
+    analogWrite(moteur_gauche,150);
+    analogWrite(moteur_droit,150);
+  }
+  // Si le capteur gauche détecte la ligne noire
+  else if (etatCapteurGauche == HIGH && etatCapteurCentral == HIGH && etatCapteurDroit == LOW) {
+    // Tourner à gauche
+    rotateG(100);
+  }
+  // Si le capteur droit détecte la ligne noire
+  if (etatCapteurDroit == HIGH && etatCapteurCentral == HIGH && etatCapteurGauche == LOW) {
+    // Tourner à droite
+    delay(1000);
+    if(etatCapteurCentral == LOW) {
+      rotateD(120);
+    }
+    return;
+  }
+  else if (etatCapteurDroit == LOW && etatCapteurCentral == LOW && etatCapteurGauche == HIGH) {
+    // recentrer à gauche
+    analogWrite(moteur_gauche,180);
+    analogWrite(moteur_droit,60);
+  }
+  else if (etatCapteurDroit == HIGH && etatCapteurCentral == LOW && etatCapteurGauche == LOW) {
+    // recentrer à droite
+    analogWrite(moteur_gauche,60);
+    analogWrite(moteur_droit,180);}
+  else if (etatCapteurDroit == LOW && etatCapteurCentral == LOW && etatCapteurGauche == LOW) {
+    // demi tour 
+    rotateG(120);
+    if (etatCapteurDroit == LOW && etatCapteurCentral == LOW && etatCapteurGauche == LOW) {
+      rotateD(120);
+      rotateD(120);
+      rotateD(120);
+    }}
+    return;
+  }
+}
+
+  if(BlueT.available()>0){
+    test=char(BlueT.read());
+    if (test=='A'){
+      digitalWrite(IN1,HIGH); // orientation des roues
+      digitalWrite(IN2,LOW);
+      digitalWrite(IN3,HIGH);
+      digitalWrite(IN4,LOW);
+      analogWrite(moteur_gauche,150);
+      analogWrite(moteur_droit,150);
+  }
+  
+  
+    if (test=='C'){
+      digitalWrite(IN1,LOW); // orientation des roues
+      digitalWrite(IN2,HIGH);
+      digitalWrite(IN3,LOW);
+      digitalWrite(IN4,HIGH);
+      analogWrite(moteur_gauche,150);
+      analogWrite(moteur_droit,150);
+    }
+    
+    if (test=='B'){
+      digitalWrite(IN1,HIGH); // orientation des roues
+      digitalWrite(IN2,LOW);
+      digitalWrite(IN3,HIGH);
+      digitalWrite(IN4,LOW);
+      analogWrite(moteur_gauche,150);
+      analogWrite(moteur_droit,0);
+    }
+    
+    if (test=='D'){
+      digitalWrite(IN1,HIGH); // orientation des roues
+      digitalWrite(IN2,LOW);
+      digitalWrite(IN3,HIGH);
+      digitalWrite(IN4,LOW);
+      analogWrite(moteur_gauche,0);
+      analogWrite(moteur_droit,150);
+    }
+  
+  
+  }
+}
+
+void rotateG(int v) {
+  digitalWrite(IN1,LOW);
+  digitalWrite(IN2,HIGH);
+  analogWrite(moteur_Gauche,v);
+  analogWrite(moteur_Droit,v);
+  delay(2000);
+  digitalWrite(IN1,HIGH);
+  digitalWrite(IN2,LOW);
+  }
+
+void rotateD(int v) {
   digitalWrite(IN3,LOW);
   digitalWrite(IN4,HIGH);
-  digitalWrite(ENA,LOW);// Moteur (GAUCHE) A - Ne pas tourner
-  digitalWrite(ENB,LOW);// Moteur (DROIT) B - Ne pas tourner
-}
-void loop() {
-  // si le capteur central detecte ligne noire avancer droit devant
-  if (digitalRead(CAPC)==LOW){
-    Serial.println("capteur central inactif, la voiture phantom avnce tout droit");
-    delay(1000);
-    analogWrite(ENA,255);
-    analogWrite(ENB,255);}
-  // si le capteur droit detecte ligne noire tourner à gauche
-  else if (digitalRead(CAPD)==LOW) {
-    Serial.println("capteur droit inactif, la voiture tourne à droite");
-    delay(1000);
-    analogWrite(ENA,255);
-    analogWrite(ENB,0);}
-  // si le capteur gauche detecte ligne noire tourner à droite
-  else if (digitalRead(CAPG)==LOW) {
-    Serial.println("capteur gauche inactif, la voiture tourne à gauche");
-    delay(1000);
-    analogWrite(ENA,0);
-    analogWrite(ENB,255);}
-}
+  analogWrite(moteur_Gauche,v);
+  analogWrite(moteur_Droit,v);
+  delay(2000);
+  digitalWrite(IN3,HIGH);
+  digitalWrite(IN4,LOW);
+
+  void loop(){
+    while(BlueT.available()){
+      Serial.println(char(BlueT.read()));
+      avancer();
+    }
+  }
